@@ -4,14 +4,30 @@ Dajngo admin customization.
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.forms import UserChangeForm
+from django import forms
 
 from core import models
+
+
+class CustomUserChangeForm(UserChangeForm):
+    """Form for updating users."""
+
+    class Meta:
+        model = models.User
+        fields = ['email', 'first_name', 'last_name', 'is_active',
+                  'is_staff', 'is_superuser', 'role']
+        widgets = {
+            'role': forms.TextInput(attrs={'readonly': 'readonly'})
+        }
 
 
 class UserAdmin(BaseUserAdmin):
     """Define the admin pages for users."""
     ordering = ['id']
-    list_display = ['email', 'first_name', 'last_name']
+    list_display = ['email', 'first_name', 'last_name', 'role']
+    form = CustomUserChangeForm
+
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         (
