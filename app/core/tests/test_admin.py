@@ -16,19 +16,19 @@ class AdminSiteTests(TestCase):
         """Create user and client."""
         self.client = Client()
         self.admin_user = get_user_model().objects.create_superuser(
-            email = "admin@test.com",
-            password = "testpass123",
-            first_name = 'Admin',
-            last_name = 'Test',
-            role = User.Role.ADMIN
+            email="admin@test.com",
+            password="testpass123",
+            first_name='Admin',
+            last_name='Test',
+            role=User.Role.ADMIN
         )
         self.client.force_login(self.admin_user)
         self.user = get_user_model().objects.create_user(
-            email = 'user@test.com',
-            password = 'testpass123',
-            first_name = 'User',
-            last_name = 'Test',
-            role = User.Role.TALENT
+            email='user@test.com',
+            password='testpass123',
+            first_name='User',
+            last_name='Test',
+            role=User.Role.TALENT
         )
 
     def test_users_list(self):
