@@ -34,25 +34,52 @@ class ModelTests(TestCase):
         ]
 
         for email, expected in sample_emails:
-            user = get_user_model().objects.create_user(email,
-                                                        'sample123',
-                                                        User.Role.TALENT)
+            user = get_user_model().objects.create_user(
+                email,
+                'sample123',
+                User.Role.TALENT
+            )
             self.assertEqual(user.email, expected)
 
     def test_new_user_without_email_raises_error(self):
         """Test that creating a user without an email raises an error."""
         with self.assertRaises(ValueError):
-            get_user_model().objects.create_user('', 'test123',
-                                                 User.Role.ADMIN)
+            get_user_model().objects.create_user(
+                '',
+                'test123',
+                User.Role.ADMIN
+            )
 
     def test_new_user_without_role_raises_error(self):
         """Test that creating a user without a role
         or an incorrect role raises an error."""
         with self.assertRaises(ValueError):
-            get_user_model().objects.create_user('test@example.com',
-                                                 'test123', '')
+            get_user_model().objects.create_user(
+                'test@example.com',
+                'test123',
+                ''
+            )
 
         with self.assertRaises(ValueError):
-            get_user_model().objects.create_user('test@example.com',
-                                                 'test123',
-                                                 "CANDIDATE")
+            get_user_model().objects.create_user(
+                'test@example.com',
+                'test123',
+                "CANDIDATE"
+            )
+
+    def test_create_superuser(self):
+        """Test creating a superuser."""
+        email = 'test@example.com'
+        password = 'test123'
+        role = User.Role.ADMIN
+
+        user = get_user_model().objects.create_superuser(
+            email=email,
+            password=password
+        )
+
+        self.assertEqual(user.email, email)
+        self.assertEqual(user.check_password(password), True)
+        self.assertEqual(user.role, role)
+        self.assertTrue(user.is_staff)
+        self.assertTrue(user.is_superuser)
