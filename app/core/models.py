@@ -18,10 +18,14 @@ class UserManager(BaseUserManager):
             raise ValueError('The email field must be set.')
         if not role:
             raise ValueError('Role must be set.')
+        if role not in [choice[0] for choice in User.Role.choices]:
+            raise ValueError('Invalid role.')
+
         email = self.normalize_email(email)
         user = self.model(email=email, role=role, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
+
         return user
 
     def create_superuser(self, email, password=None, role=None,
@@ -36,6 +40,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     """Base user in the system."""
 
     class Role(models.TextChoices):
+        """User roles."""
         ADMIN = "ADMIN", 'Admin'
         COMPANY = "COMPANY", 'Company'
         TALENT = "TALENT", 'Talent'
