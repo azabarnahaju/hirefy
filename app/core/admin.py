@@ -44,6 +44,23 @@ class UserAdmin(BaseUserAdmin):
             }
         )
     )
-    readonly_fields = ['last_login', 'date_joined', 'role']
+    readonly_fields = ['last_login', 'date_joined']
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': (
+                'email',
+                'password1',
+                'password2',
+                'role',
+                'first_name',
+                'last_name',
+                'is_active',
+                'is_superuser',
+                'is_staff',
+            )
+        }),
+    )
+
 
 admin.site.register(models.User, UserAdmin)
