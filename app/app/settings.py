@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'core',
+    'user',
     'rest_framework',
     'drf_spectacular',
     'django.contrib.admin',
