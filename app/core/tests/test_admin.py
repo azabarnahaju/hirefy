@@ -5,7 +5,7 @@ Test for the Django admin modifications.
 from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from core.models import User
+from core.enums import Role
 
 
 class AdminSiteTests(TestCase):
@@ -20,7 +20,7 @@ class AdminSiteTests(TestCase):
             password="testpass123",
             first_name='Admin',
             last_name='Test',
-            role=User.Role.ADMIN
+            role=Role.ADMIN
         )
         self.client.force_login(self.admin_user)
         self.user = get_user_model().objects.create_user(
@@ -28,7 +28,7 @@ class AdminSiteTests(TestCase):
             password='testpass123',
             first_name='User',
             last_name='Test',
-            role=User.Role.TALENT
+            role=Role.TALENT
         )
 
     def test_users_list(self):

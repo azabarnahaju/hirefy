@@ -3,7 +3,8 @@ Tests for models.
 """
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from core.models import User
+
+from core.enums import Role
 
 
 class ModelTests(TestCase):
@@ -13,7 +14,7 @@ class ModelTests(TestCase):
         """Test creating a user with an email is successful."""
         email = 'test@example.com'
         password = 'testpass123'
-        role = User.Role.ADMIN
+        role = Role.ADMIN
         user = get_user_model().objects.create_user(
             email=email,
             password=password,
@@ -37,7 +38,7 @@ class ModelTests(TestCase):
             user = get_user_model().objects.create_user(
                 email,
                 'sample123',
-                User.Role.TALENT
+                Role.TALENT
             )
             self.assertEqual(user.email, expected)
 
@@ -47,7 +48,7 @@ class ModelTests(TestCase):
             get_user_model().objects.create_user(
                 '',
                 'test123',
-                User.Role.ADMIN
+                Role.ADMIN
             )
 
     def test_new_user_without_role_raises_error(self):
@@ -71,7 +72,7 @@ class ModelTests(TestCase):
         """Test creating a superuser."""
         email = 'test@example.com'
         password = 'test123'
-        role = User.Role.ADMIN
+        role = Role.ADMIN
 
         user = get_user_model().objects.create_superuser(
             email=email,

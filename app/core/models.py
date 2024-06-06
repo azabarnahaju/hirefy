@@ -8,6 +8,8 @@ from django.contrib.auth.models import (
     PermissionsMixin
 )
 
+from core.enums import Role
+
 
 class UserManager(BaseUserManager):
     """Manager for base users."""
@@ -18,7 +20,7 @@ class UserManager(BaseUserManager):
             raise ValueError('The email field must be set.')
         if not role:
             raise ValueError('Role must be set.')
-        if role not in [choice[0] for choice in User.Role.choices]:
+        if role not in [choice[0] for choice in Role.choices]:
             raise ValueError('Invalid role.')
 
         email = self.normalize_email(email)
@@ -32,18 +34,12 @@ class UserManager(BaseUserManager):
                          **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        role = User.Role.ADMIN
+        role = Role.ADMIN
         return self.create_user(email, password, role, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
     """Base user in the system."""
-
-    class Role(models.TextChoices):
-        """User roles."""
-        ADMIN = "ADMIN", 'Admin'
-        COMPANY = "COMPANY", 'Company'
-        TALENT = "TALENT", 'Talent'
 
     email = models.EmailField(unique=True, max_length=255)
     first_name = models.CharField(max_length=255)
