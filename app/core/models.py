@@ -89,3 +89,22 @@ class CompanyProfile(models.Model):
 
     def __str__(self):
         return f"COMPANY | {self.name}"
+
+
+class TalentProfile(models.Model):
+    """Profile for talent users."""
+    account = models.OneToOneField(User, on_delete=models.CASCADE,
+                                   related_name='talent_profile')
+    profile_description = models.TextField()
+
+    def clean(self, *args, **kwargs):
+        if self.account.role is not Role.TALENT:
+            raise ValidationError("Invalid role for this profile type")
+        super().clean(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"TALENT | {self.account.get_full_name()}"
