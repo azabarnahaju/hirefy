@@ -79,7 +79,7 @@ class CompanyProfile(models.Model):
     name = models.CharField(max_length=255)
 
     def clean(self, *args, **kwargs):
-        if self.account.role is not Role.COMPANY:
+        if self.account.role != Role.COMPANY:
             raise ValidationError("Invalid role for this profile type")
         super().clean(*args, **kwargs)
 
@@ -98,7 +98,7 @@ class TalentProfile(models.Model):
     profile_description = models.TextField()
 
     def clean(self, *args, **kwargs):
-        if self.account.role is not Role.TALENT:
+        if self.account.role != Role.TALENT:
             raise ValidationError("Invalid role for this profile type")
         super().clean(*args, **kwargs)
 

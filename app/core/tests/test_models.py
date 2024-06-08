@@ -147,7 +147,7 @@ class ModelTests(TestCase):
         self.assertEqual(talent_profile.account.email, email)
         self.assertEqual(talent_profile.profile_description,
                          "Test Description")
-
+    
     def test_create_talent_profile_wrong_role_raise_error(self):
         """Test creating a talent profile with company role
         returns ValidationError."""
