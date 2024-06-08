@@ -127,3 +127,42 @@ class ModelTests(TestCase):
                 account=user,
                 name="Test Company"
             )
+
+    def test_create_talent_profile(self):
+        """Test creating a company profile."""
+        email = 'test@example.com'
+        password = 'test123'
+        role = Role.TALENT
+
+        user = User().objects.create_user(
+            email=email,
+            password=password,
+            role=role
+        )
+        talent_profile = models.TalentProfile.objects.create(
+            account=user,
+            profile_description="Test Description"
+        )
+
+        self.assertEqual(talent_profile.account.email, email)
+        self.assertEqual(talent_profile.profile_description,
+                         "Test Description")
+
+    def test_create_talent_profile_wrong_role_raise_error(self):
+        """Test creating a talent profile with company role
+        returns ValidationError."""
+        email = 'test@example.com'
+        password = 'test123'
+        role = Role.COMPANY
+
+        user = User().objects.create_user(
+            email=email,
+            password=password,
+            role=role
+        )
+
+        with self.assertRaises(ValidationError):
+            models.TalentProfile.objects.create(
+                account=user,
+                profile_description="Test Description"
+            )
