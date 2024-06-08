@@ -2,9 +2,11 @@
 Tests for models.
 """
 from django.test import TestCase
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model as User
+from django.core.exceptions import ValidationError
 
 from core.enums import Role
+from core import models
 
 
 class ModelTests(TestCase):
@@ -15,7 +17,7 @@ class ModelTests(TestCase):
         email = 'test@example.com'
         password = 'testpass123'
         role = Role.ADMIN
-        user = get_user_model().objects.create_user(
+        user = User().objects.create_user(
             email=email,
             password=password,
             role=role
@@ -35,7 +37,7 @@ class ModelTests(TestCase):
         ]
 
         for email, expected in sample_emails:
-            user = get_user_model().objects.create_user(
+            user = User().objects.create_user(
                 email,
                 'sample123',
                 Role.TALENT
@@ -45,7 +47,7 @@ class ModelTests(TestCase):
     def test_new_user_without_email_raises_error(self):
         """Test that creating a user without an email raises an error."""
         with self.assertRaises(ValueError):
-            get_user_model().objects.create_user(
+            User().objects.create_user(
                 '',
                 'test123',
                 Role.ADMIN
@@ -55,14 +57,14 @@ class ModelTests(TestCase):
         """Test that creating a user without a role
         or an incorrect role raises an error."""
         with self.assertRaises(ValueError):
-            get_user_model().objects.create_user(
+            User().objects.create_user(
                 'test@example.com',
                 'test123',
                 ''
             )
 
         with self.assertRaises(ValueError):
-            get_user_model().objects.create_user(
+            User().objects.create_user(
                 'test@example.com',
                 'test123',
                 "CANDIDATE"
@@ -74,7 +76,7 @@ class ModelTests(TestCase):
         password = 'test123'
         role = Role.ADMIN
 
-        user = get_user_model().objects.create_superuser(
+        user = User().objects.create_superuser(
             email=email,
             password=password
         )
@@ -84,3 +86,44 @@ class ModelTests(TestCase):
         self.assertEqual(user.role, role)
         self.assertTrue(user.is_staff)
         self.assertTrue(user.is_superuser)
+
+    def test_create_company_profile(self):
+        """Test creating a company profile."""
+        email = 'test@example.com'
+        password = 'test123'
+        role = Role.COMPANY
+
+        user = User().objects.create_user(
+            email=email,
+            password=password,
+            role=role
+        )
+
+        company_profile = models.CompanyProfile.objects.create(
+            account=user,
+            name="Test Company"
+        )
+
+        self.assertEqual(company_profile.account.email, email)
+        self.assertEqual(company_profile.name, "Test Company")
+        self.assertEqual(str(company_profile),
+                         f"COMPANY | {company_profile.name}")
+
+    def test_create_company_profile_wrong_role_raise_error(self):
+        """Test creating a company profile with wrong role
+            returns ValidationError."""
+        email = 'test@example.com'
+        password = 'test123'
+        role = Role.TALENT
+
+        user = User().objects.create_user(
+            email=email,
+            password=password,
+            role=role
+        )
+
+        with self.assertRaises(ValidationError):
+            models.CompanyProfile.objects.create(
+                account=user,
+                name="Test Company"
+            )
