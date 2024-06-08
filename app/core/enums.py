@@ -172,19 +172,6 @@ class LangProf(models.TextChoices):
     NATIVE = 'NAT', 'Native'
 
 
-class Education(models.TextChoices):
-    """Edication choices."""
-    NONE = 'NONE', 'None'
-    HIGH_SCHOOL = 'HS', 'High School Diploma'
-    ASSOCIATE_DEGREE = 'AD', 'Associate Degree'
-    BACHELORS_DEGREE = 'BD', 'Bachelor\'s Degree'
-    MASTERS_DEGREE = 'MD', 'Master\'s Degree'
-    DOCTORATE = 'DOC', 'Doctorate (PhD, EdD, etc.)'
-    PROFESSIONAL_CERTIFICATION = 'PC', 'Professional Certification'
-    TRADE_SCHOOL = 'TS', 'Trade School'
-    OTHER = 'OTH', 'Other'
-
-
 class Seniority(models.TextChoices):
     """Seniority level."""
     INTERN = 'INTERN', 'Intern'
