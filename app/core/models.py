@@ -2,6 +2,7 @@
 Database models.
 """
 from django.db import models
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -69,3 +70,22 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def has_module_perms(self, app_label):
         return True
+
+
+class CompanyProfile(models.Model):
+    """Company profile for users wit company role."""
+    account = models.OneToOneField(User, on_delete=models.CASCADE,
+                                   related_name='company_profile')
+    name = models.CharField(max_length=255)
+
+    def clean(self, *args, **kwargs):
+        if self.account.role is not Role.COMPANY:
+            raise ValidationError("Invalid role for this profile type")
+        super().clean(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"COMPANY | {self.name}"
