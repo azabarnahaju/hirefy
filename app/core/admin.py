@@ -80,3 +80,6 @@ class UserAdmin(BaseUserAdmin):
 
 
 admin.site.register(models.User, UserAdmin)
+admin.site.register(models.CompanyProfile)
+admin.site.register(models.TalentProfile)
+admin.site.register(models.Job)

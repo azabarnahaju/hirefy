@@ -2,13 +2,14 @@
 Database models.
 """
 from django.db import models
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
     PermissionsMixin
 )
 
-from core.enums import Role
+from core.enums import Role, Seniority, Employment
 
 
 class UserManager(BaseUserManager):
@@ -69,3 +70,67 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def has_module_perms(self, app_label):
         return True
+
+
+class CompanyProfile(models.Model):
+    """Company profile for users wit company role."""
+    account = models.OneToOneField(User, on_delete=models.CASCADE,
+                                   related_name='company_profile')
+    name = models.CharField(max_length=255)
+
+    def clean(self, *args, **kwargs):
+        if self.account.role != Role.COMPANY:
+            raise ValidationError("Invalid role for this profile type")
+        super().clean(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"COMPANY | {self.name}"
+
+
+class TalentProfile(models.Model):
+    """Profile for talent users."""
+    account = models.OneToOneField(User, on_delete=models.CASCADE,
+                                   related_name='talent_profile')
+    profile_description = models.TextField()
+
+    def clean(self, *args, **kwargs):
+        if self.account.role != Role.TALENT:
+            raise ValidationError("Invalid role for this profile type")
+        super().clean(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"TALENT | {self.account.get_full_name()}"
+
+
+class Job(models.Model):
+    """Job model."""
+    company = models.ForeignKey(User, on_delete=models.CASCADE,
+                                related_name='jobs')
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    main_tasks = models.TextField()
+    min_salary = models.IntegerField()
+    max_salary = models.IntegerField()
+    seniority = models.CharField(max_length=255, choices=Seniority.choices)
+    employment_type = models.CharField(max_length=255,
+                                       choices=Employment.choices)
+
+    def clean(self, *args, **kwargs):
+        if self.company.role != Role.COMPANY:
+            raise ValidationError("Only companies can have jobs.")
+        super().clean(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title
