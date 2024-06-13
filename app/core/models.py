@@ -9,7 +9,7 @@ from django.contrib.auth.models import (
     PermissionsMixin
 )
 
-from core.enums import Role
+from core.enums import Role, Seniority, Employment
 
 
 class UserManager(BaseUserManager):
@@ -108,3 +108,29 @@ class TalentProfile(models.Model):
 
     def __str__(self):
         return f"TALENT | {self.account.get_full_name()}"
+
+
+class Job(models.Model):
+    """Job model."""
+    company = models.ForeignKey(User, on_delete=models.CASCADE,
+                                related_name='jobs')
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    main_tasks = models.TextField()
+    min_salary = models.IntegerField()
+    max_salary = models.IntegerField()
+    seniority = models.CharField(max_length=255, choices=Seniority.choices)
+    employment_type = models.CharField(max_length=255,
+                                       choices=Employment.choices)
+
+    def clean(self, *args, **kwargs):
+        if self.company.role != Role.COMPANY:
+            raise ValidationError("Only companies can have jobs.")
+        super().clean(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title
