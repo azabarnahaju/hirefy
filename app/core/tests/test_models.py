@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model as User
 from django.core.exceptions import ValidationError
 
-from core.enums import Role
+from core.enums import Role, Seniority, Employment
 from core import models
 
 
@@ -147,7 +147,7 @@ class ModelTests(TestCase):
         self.assertEqual(talent_profile.account.email, email)
         self.assertEqual(talent_profile.profile_description,
                          "Test Description")
-    
+
     def test_create_talent_profile_wrong_role_raise_error(self):
         """Test creating a talent profile with company role
         returns ValidationError."""
@@ -165,4 +165,58 @@ class ModelTests(TestCase):
             models.TalentProfile.objects.create(
                 account=user,
                 profile_description="Test Description"
+            )
+
+    def test_create_job_successful_company(self):
+        """Test creating a job works only with company role owner."""
+        email = 'test@example.com'
+        password = 'test123'
+        role = Role.COMPANY
+
+        user = User().objects.create_user(
+            email=email,
+            password=password,
+            role=role
+        )
+
+        job = models.Job.objects.create(
+            company=user,
+            title="Test Title",
+            description="Test Description",
+            main_tasks='Test Task #1',
+            min_salary=50000,
+            max_salary=150000,
+            seniority=Seniority.JUNIOR,
+            employment_type=Employment.FULL_TIME
+        )
+
+        self.assertEqual(job.company.email, email)
+        self.assertEqual(job.title, "Test Title")
+        self.assertEqual(job.seniority, Seniority.JUNIOR)
+        self.assertEqual(job.min_salary, 50000)
+        self.assertEqual(job.description, "Test Description")
+
+    def test_create_job_not_company_owner_raises_error(self):
+        """Test creating a job with not company role
+            owner raises ValidationError."""
+        email = 'test@example.com'
+        password = 'test123'
+        role = Role.TALENT
+
+        user = User().objects.create_user(
+            email=email,
+            password=password,
+            role=role
+        )
+
+        with self.assertRaises(ValidationError):
+            models.Job.objects.create(
+                company=user,
+                title="Test Title",
+                description="Test Description",
+                main_tasks='Test Task #1',
+                min_salary=50000,
+                max_salary=150000,
+                seniority=Seniority.JUNIOR,
+                employment_type=Employment.FULL_TIME
             )
