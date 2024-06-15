@@ -34,6 +34,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'core',
     'user',
+    'job',
     'rest_framework',
     'rest_framework.authtoken',
     'drf_spectacular',
