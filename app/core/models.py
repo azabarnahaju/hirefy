@@ -1,6 +1,7 @@
 """
 Database models.
 """
+from django.conf import settings
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import (
@@ -111,9 +112,12 @@ class TalentProfile(models.Model):
 
 
 class Job(models.Model):
-    """Job model."""
-    company = models.ForeignKey(User, on_delete=models.CASCADE,
-                                related_name='jobs')
+    """Job object."""
+    company = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='jobs'
+    )
     title = models.CharField(max_length=255)
     description = models.TextField()
     main_tasks = models.TextField()
