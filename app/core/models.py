@@ -75,8 +75,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class CompanyProfile(models.Model):
     """Company profile for users wit company role."""
-    account = models.OneToOneField(User, on_delete=models.CASCADE,
-                                   related_name='company_profile')
+    account = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='company_profile'
+    )
     name = models.CharField(max_length=255)
 
     def clean(self, *args, **kwargs):
@@ -94,8 +97,11 @@ class CompanyProfile(models.Model):
 
 class TalentProfile(models.Model):
     """Profile for talent users."""
-    account = models.OneToOneField(User, on_delete=models.CASCADE,
-                                   related_name='talent_profile')
+    account = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='talent_profile'
+    )
     profile_description = models.TextField()
 
     def clean(self, *args, **kwargs):
@@ -123,9 +129,14 @@ class Job(models.Model):
     main_tasks = models.TextField()
     min_salary = models.IntegerField()
     max_salary = models.IntegerField()
-    seniority = models.CharField(max_length=255, choices=Seniority.choices)
-    employment_type = models.CharField(max_length=255,
-                                       choices=Employment.choices)
+    seniority = models.CharField(
+        max_length=255,
+        choices=Seniority.choices
+    )
+    employment_type = models.CharField(
+        max_length=255,
+        choices=Employment.choices
+    )
 
     def clean(self, *args, **kwargs):
         if self.company.role != Role.COMPANY:
