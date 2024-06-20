@@ -53,6 +53,7 @@ def create_job(company, **params):
 
     return job
 
+
 def create_user(**params):
     """Create and return a new user."""
     return get_user_model().objects.create_user(**params)
@@ -117,7 +118,7 @@ class PrivateJobAPITests(TestCase):
             'max_salary': 150000,
             'seniority': Seniority.JUNIOR,
             'employment_type': Employment.FULL_TIME,
-            'languages' : [
+            'languages': [
                 {
                     'language': 'English',
                     'level': 'Beginner'
@@ -209,7 +210,11 @@ class PrivateJobAPITests(TestCase):
 
     def test_update_user_returns_error(self):
         """Test changing the job company results in an error."""
-        new_user = create_user(email='another_user@test.com', password='test123', role=Role.TALENT)
+        new_user = create_user(
+            email='another_user@test.com',
+            password='test123',
+            role=Role.TALENT
+        )
         job = create_job(company=self.company_user)
 
         payload = {
@@ -234,7 +239,11 @@ class PrivateJobAPITests(TestCase):
 
     def test_delete_other_users_job_error(self):
         """Test trying to delete another company's job gives error."""
-        new_user = create_user(email='another_user@test.com', password='test123', role=Role.COMPANY)
+        new_user = create_user(
+            email='another_user@test.com',
+            password='test123',
+            role=Role.COMPANY
+        )
         job = create_job(company=new_user)
 
         url = detail_url(job.id)

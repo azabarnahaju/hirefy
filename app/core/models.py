@@ -81,8 +81,16 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class LanguageSkill(models.Model):
     """Language proficiency object."""
-    language = models.CharField(max_length=255, null=False, choices=LangSkill.choices)
-    level = models.CharField(max_length=255, null=False, choices=LangProf.choices)
+    language = models.CharField(
+        max_length=255,
+        null=False,
+        choices=LangSkill.choices
+    )
+    level = models.CharField(
+        max_length=255,
+        null=False,
+        choices=LangProf.choices
+    )
 
     def __str__(self):
         return self.language + ' - ' + self.level
@@ -152,7 +160,9 @@ class Job(models.Model):
         max_length=255,
         choices=Employment.choices
     )
-    languages = models.ManyToManyField(LanguageSkill, related_name='jobs', blank=True)
+    languages = models.ManyToManyField(LanguageSkill,
+                                       related_name='jobs',
+                                       blank=True)
 
     def clean(self, *args, **kwargs):
         if self.company.role != Role.COMPANY:

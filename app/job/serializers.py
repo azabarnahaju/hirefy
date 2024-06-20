@@ -47,4 +47,7 @@ class JobDetailSerializer(JobSerializer):
     """Serializer for job detail view."""
 
     class Meta(JobSerializer.Meta):
-        fields = JobSerializer.Meta.fields + ['employment_type', 'main_tasks', 'min_salary', 'max_salary']
+        fields = JobSerializer.Meta.fields + [
+            'employment_type', 'main_tasks',
+            'min_salary', 'max_salary'
+        ]
