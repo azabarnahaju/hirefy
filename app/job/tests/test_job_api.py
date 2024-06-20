@@ -10,6 +10,7 @@ from rest_framework.test import APIClient
 
 from core.models import Job
 from core.enums import Seniority, Employment, Role
+from core.utils import get_or_create_language_skills
 
 from job.serializers import (
     JobSerializer,
@@ -34,11 +35,22 @@ def create_job(company, **params):
         'min_salary': 50000,
         'max_salary': 150000,
         'seniority': Seniority.JUNIOR,
-        'employment_type': Employment.FULL_TIME
+        'employment_type': Employment.FULL_TIME,
+        'languages': [
+            {
+                'language': 'English',
+                'level': 'Advanced'
+            }
+        ]
     }
     defaults.update(params)
-
+    language_data = defaults.pop('languages')
     job = Job.objects.create(company=company, **defaults)
+
+    for language in language_data:
+        language_skill = get_or_create_language_skills(language)
+        job.languages.add(language_skill)
+
     return job
 
 def create_user(**params):
@@ -104,12 +116,19 @@ class PrivateJobAPITests(TestCase):
             'min_salary': 50000,
             'max_salary': 150000,
             'seniority': Seniority.JUNIOR,
-            'employment_type': Employment.FULL_TIME
+            'employment_type': Employment.FULL_TIME,
+            'languages' : [
+                {
+                    'language': 'English',
+                    'level': 'Beginner'
+                }
+            ]
         }
         res = self.client.post(JOBS_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         job = Job.objects.get(id=res.data['id'])
+        payload.pop('languages')
         for k, v in payload.items():
             self.assertEqual(getattr(job, k), v)
         self.assertEqual(job.company, self.company_user)
@@ -145,13 +164,45 @@ class PrivateJobAPITests(TestCase):
             'min_salary': 60000,
             'max_salary': 160000,
             'seniority': Seniority.SENIOR,
-            'employment_type': Employment.CONTRACT
+            'employment_type': Employment.CONTRACT,
+            'languages': [
+                {
+                    'language': 'English',
+                    'level': 'Advanced'
+                }
+            ]
         }
         url = detail_url(job.id)
         res = self.client.put(url, payload)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         job.refresh_from_db()
+        payload.pop('languages')
+
+        for k, v in payload.items():
+            self.assertEqual(getattr(job, k), v)
+
+        self.assertEqual(job.company, self.company_user)
+
+    def test_full_update_to_empty_languages_success(self):
+        """Test full update of job when updating to empty languages."""
+        job = create_job(company=self.company_user)
+        payload = {
+            'title': 'New job title',
+            'description': 'New job description',
+            'main_tasks': 'New job main tasks',
+            'min_salary': 60000,
+            'max_salary': 160000,
+            'seniority': Seniority.SENIOR,
+            'employment_type': Employment.CONTRACT,
+            'languages': []
+        }
+        url = detail_url(job.id)
+        res = self.client.put(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        job.refresh_from_db()
+        payload.pop('languages')
         for k, v in payload.items():
             self.assertEqual(getattr(job, k), v)
         self.assertEqual(job.company, self.company_user)
@@ -162,8 +213,9 @@ class PrivateJobAPITests(TestCase):
         job = create_job(company=self.company_user)
 
         payload = {
-            'user': new_user
+            'company': new_user
         }
+
         url = detail_url(job.id)
         self.client.patch(url, payload)
 
@@ -180,7 +232,7 @@ class PrivateJobAPITests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Job.objects.filter(id=job.id).exists())
 
-    def test_job_other_users_job_error(self):
+    def test_delete_other_users_job_error(self):
         """Test trying to delete another company's job gives error."""
         new_user = create_user(email='another_user@test.com', password='test123', role=Role.COMPANY)
         job = create_job(company=new_user)
