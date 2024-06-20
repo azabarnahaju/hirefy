@@ -10,7 +10,13 @@ from django.contrib.auth.models import (
     PermissionsMixin
 )
 
-from core.enums import Role, Seniority, Employment
+from core.enums import (
+    Role,
+    Seniority,
+    Employment,
+    LangSkill,
+    LangProf
+    )
 
 
 class UserManager(BaseUserManager):
@@ -71,6 +77,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def has_module_perms(self, app_label):
         return True
+
+
+class LanguageSkill(models.Model):
+    """Language proficiency object."""
+    language = models.CharField(max_length=255, null=False, choices=LangSkill.choices)
+    level = models.CharField(max_length=255, null=False, choices=LangProf.choices)
+
+    def __str__(self):
+        return self.language + ' - ' + self.level
 
 
 class CompanyProfile(models.Model):
@@ -137,6 +152,7 @@ class Job(models.Model):
         max_length=255,
         choices=Employment.choices
     )
+    languages = models.ManyToManyField(LanguageSkill, related_name='jobs', blank=True)
 
     def clean(self, *args, **kwargs):
         if self.company.role != Role.COMPANY:
@@ -148,4 +164,4 @@ class Job(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.title
+        return f"#{self.id} {self.title}"
