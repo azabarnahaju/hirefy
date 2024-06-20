@@ -79,7 +79,17 @@ class UserAdmin(BaseUserAdmin):
     )
 
 
+class JobInline(admin.StackedInline):
+    model = models.Job.languages.through
+    extra = 1
+
+
+class LanguageSkillAdmin(admin.ModelAdmin):
+    inlines = [JobInline]
+
+
 admin.site.register(models.User, UserAdmin)
 admin.site.register(models.CompanyProfile)
 admin.site.register(models.TalentProfile)
 admin.site.register(models.Job)
+admin.site.register(models.LanguageSkill, LanguageSkillAdmin)
