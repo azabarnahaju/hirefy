@@ -88,8 +88,28 @@ class LanguageSkillAdmin(admin.ModelAdmin):
     inlines = [JobInline]
 
 
+class TechSkillInline(admin.StackedInline):
+    model = models.Job.technical_skills.through
+    extra = 1
+
+
+class TechnicalSkillAdmin(admin.ModelAdmin):
+    inlines = [TechSkillInline]
+
+
+class PersSkillInline(admin.StackedInline):
+    model = models.Job.personal_skills.through
+    extra = 1
+
+
+class PersonalSkillAdmin(admin.ModelAdmin):
+    inlines = [PersSkillInline]
+
+
 admin.site.register(models.User, UserAdmin)
 admin.site.register(models.CompanyProfile)
 admin.site.register(models.TalentProfile)
 admin.site.register(models.Job)
 admin.site.register(models.LanguageSkill, LanguageSkillAdmin)
+admin.site.register(models.TechnicalSkill, TechnicalSkillAdmin)
+admin.site.register(models.PersonalSkill, PersonalSkillAdmin)
