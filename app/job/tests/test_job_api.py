@@ -123,13 +123,25 @@ class PrivateJobAPITests(TestCase):
                     'language': 'English',
                     'level': 'Beginner'
                 }
+            ],
+            'technical_skills': [
+                {
+                    'value': 'TECH_PY'
+                }
+            ],
+            'personal_skills': [
+                {
+                    'value': 'PERS_TM'
+                }
             ]
         }
         res = self.client.post(JOBS_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         job = Job.objects.get(id=res.data['id'])
-        payload.pop('languages')
+        payload.pop('languages', None)
+        payload.pop('technical_skills', None)
+        payload.pop('personal_skills', None)
         for k, v in payload.items():
             self.assertEqual(getattr(job, k), v)
         self.assertEqual(job.company, self.company_user)
