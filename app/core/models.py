@@ -15,7 +15,9 @@ from core.enums import (
     Seniority,
     Employment,
     LangSkill,
-    LangProf
+    LangProf,
+    TechSkill,
+    PersSkill
     )
 
 
@@ -93,7 +95,29 @@ class LanguageSkill(models.Model):
     )
 
     def __str__(self):
-        return self.language + ' - ' + self.level
+        return self.get_language_display() + ' - ' + self.get_level_display()
+
+
+class TechnicalSkill(models.Model):
+    """Technical skill object."""
+    value = models.CharField(
+        max_length=255,
+        choices=TechSkill.choices
+    )
+
+    def __str__(self):
+        return self.get_value_display()
+
+
+class PersonalSkill(models.Model):
+    """Personal skill object."""
+    value = models.CharField(
+        max_length=255,
+        choices=PersSkill.choices
+    )
+
+    def __str__(self):
+        return self.get_value_display()
 
 
 class CompanyProfile(models.Model):
@@ -163,6 +187,12 @@ class Job(models.Model):
     languages = models.ManyToManyField(LanguageSkill,
                                        related_name='jobs',
                                        blank=True)
+    technical_skills = models.ManyToManyField(TechnicalSkill,
+                                              related_name='jobs',
+                                              blank=True)
+    personal_skills = models.ManyToManyField(PersonalSkill,
+                                             related_name='jobs',
+                                             blank=True)
 
     def clean(self, *args, **kwargs):
         if self.company.role != Role.COMPANY:
